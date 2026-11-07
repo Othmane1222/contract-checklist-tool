@@ -1,0 +1,9 @@
+# Python's private toolbox for this project
+.venv/
+
+# Temporary files Python creates
+__pycache__/
+*.pyc
+
+# Secret keys: never commit these
+.env
