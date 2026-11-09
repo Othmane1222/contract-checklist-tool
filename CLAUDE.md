@@ -1,57 +1,67 @@
 # Contract Checklist Tool: Project Notes
 
-## Who I am
-I am a beginner learning Python, JavaScript, VS Code, the terminal, Git and AI APIs. I am also a lawyer. My goals are to learn by doing the work myself and to finish a project good enough for my CV and GitHub.
+## Working rules
+- I write all the code myself. Do not create, edit or delete files, and do not run commands, unless I explicitly ask.
+- For each milestone, give a numbered step plan (Step 1, Step 2...). Each step names the file to create or change, the code to paste, and the command to run, if any.
+- Keep it short: one line on what each step does. No tutorials or glossaries unless I ask.
+- You may read my files to check my work. When something breaks, give the cause and the fix briefly.
+- Tell me when to commit and suggest a commit message. I make the commits.
+- If a choice is ambiguous, propose 2 options with a recommendation and wait for me to choose.
 
-## Most important rule: I write the code
-- Do NOT create, edit or delete files in this project. Do NOT run commands for me.
-- Give me code in the chat, one file or small piece at a time.
-- Tell me exactly which folder and file to use, what to paste and where, what command to type, and what output to expect.
-- After I paste the code, you may READ my files to check my work. I fix mistakes myself.
-- When I get an error: first explain what it means and where to look, then give a hint. Give the full fix only if I ask.
-- Every few steps, ask me one short question to check I understood.
+## Skills
+- superpowers: use brainstorming and writing-plans to shape each milestone and its step plan, and systematic-debugging when I hit errors. Do not use executing-plans or subagent-driven-development.
+- frontend-design: use it in the design milestone.
 
-## How we work
-- Work in small milestones. Before each one, give a short plan: files, their purpose, and new concepts.
-- Teach one or two VS Code skills per milestone, with Windows and Mac shortcuts.
-- Explain every new term in plain language the first time it appears.
-- End each milestone with a glossary, a recap, how to run it, and Git commit steps. Wait for me to confirm before moving on.
-- I make the Git commits myself.
-- If a choice is ambiguous, propose 2 options with a recommendation, then wait for me to choose.
+## Product
+A personal project, independent of any firm: a web tool that helps foreigners in China understand contracts written in Chinese. Built to CV standard and to be presentable to law firms as a product they could adopt. No firm names or branding anywhere.
+
+## Features
+Phase 1
+1. Contract type selection: Employment contract, Apartment lease, Business agreement. Each type has its own checklist in a config file. I write the items; use placeholders until then.
+2. Results table: Checklist item | Found? | Risk (Low/Medium/High) | Short explanation | Source quote with location (page for PDF, paragraph for DOCX). Validate AI output against a schema, retry if invalid, and reject any finding whose quote is not in the document.
+3. "Explain it to me" mode: the original Chinese clause side by side with a plain-language explanation in the user's language.
+4. "Get help from a lawyer" contact form on the results page, highlighted when any item is High risk. Sends name, contact, contract type and a short description to a recipient email set in .env, so a firm can plug in its own address. Never attaches the contract.
+
+Phase 2
+5. Know-your-rights guides in Markdown files (renting, employment, visas and work permits, opening a company), linked from matching results.
+6. Deadline extraction (end date, renewal notice, payment dates) with an .ics calendar download.
+
+## Requirements
+- Languages: UI and results in English, Spanish and Chinese. Contracts are mostly Chinese, sometimes bilingual.
+- Privacy: process files in memory, never store contracts, never log contract text.
+- Disclaimer on every results page, in all three languages: "This is an automated checklist, not legal advice."
+- Clear error messages: unsupported file type, file too large, empty or unreadable file, AI API failure, rate limiting.
+- Secrets (API keys, email settings) only in .env, never committed.
+- Evaluation test set with an accuracy report, automated tests for parsing and validation, and a live deployment.
+- I am in mainland China: choose an AI API and hosting reachable from here, and say where a VPN is needed. Cheap model in development, stronger model for final testing.
+- Design: plain, neutral layout for now. All styling lives in static/style.css using CSS variables, so it is easy to restyle.
 
 ## Stack
-- Backend: Python + FastAPI, run with Uvicorn
-- Frontend: simple HTML, CSS and JavaScript
+- Backend: Python 3.14, FastAPI, Uvicorn
+- Frontend: HTML, CSS and plain JavaScript in static/
 - Validation: Pydantic
-- AI API: DeepSeek proposed, to be confirmed in Milestone 3
-- Hosting: to be decided in Milestone 8
+- AI API: DeepSeek (proposed, confirm in Milestone 3)
+- Contact form email: to be decided (Milestone 7)
+- Hosting: to be decided (Milestone 10)
 
-## How to run
+## How to run (Windows)
     .venv\Scripts\Activate.ps1
+    python -m pip install -r requirements.txt
     python -m uvicorn main:app --reload
 Then open http://127.0.0.1:8000
 
-## Project rules
-- I am based in mainland China. Recommend services I can access from here and say where a VPN is needed.
-- Use a cheap AI model during development and a stronger one only for final testing.
-- API keys go in a .env file that is never committed to Git.
-- Process files in memory. Never store uploaded contracts or log contract text.
-- Show this disclaimer on the page: "This is an automated checklist, not legal advice."
-- No secrets or contract data in the repo.
-
-## Conventions
-- The 10 checklist items live in a config file.
-- Every finding quotes the exact source clause and its location. Flag or reject quotes not found in the document.
-- Location means page number for PDFs and paragraph number for Word files.
-
 ## Milestones
-1. Setup and hello world (in progress)
-2. Upload page and text extraction
-3. AI call with checklist prompt and JSON schema
-4. Validation, retry and source-quote verification
-5. Results table, CSV download, error messages, disclaimer
-6. English, Spanish and Chinese
-7. Evaluation script, test set and accuracy report
-8. Privacy check, tests, README screenshots, deployment
-9. Design decisions and limitations write-up
-10. Stretch goals: chunking, OCR, PDF export
+1. Setup and hello world (done)
+2. Contract type selection, upload page, text extraction with locations
+3. Checklist config files and AI call returning JSON
+4. Schema validation, retry and source-quote check
+5. Results table and error messages
+6. "Explain it to me" mode
+7. Contact form
+8. Languages: English, Spanish, Chinese
+9. Design (frontend-design)
+10. Evaluation set and accuracy report, tests, privacy check, deployment
+11. Design decisions and limitations write-up
+12. Phase 2: know-your-rights guides
+13. Phase 2: deadline extraction and .ics download
+Stretch: OCR for scanned PDFs, chunking for long contracts.
