@@ -1,0 +1,8 @@
+{
+  "contract_type": "business",
+  "items": [
+    {"id": "payment_terms", "label": "Payment terms", "question": "Does the contract state amounts, deadlines and payment method?"},
+    {"id": "liability_cap", "label": "Liability cap", "question": "Does the contract limit either party's liability?"},
+    {"id": "dispute_resolution", "label": "Dispute resolution", "question": "Does the contract say how disputes are resolved, and where?"}
+  ]
+}

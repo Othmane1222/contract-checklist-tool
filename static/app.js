@@ -4,11 +4,11 @@ const output = document.getElementById("output");
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  statusText.textContent = "Reading the contract…";
+  statusText.textContent = "Checking the contract… this can take up to a minute.";
   output.textContent = "";
 
   try {
-    const response = await fetch("/api/extract", {
+    const response = await fetch("/api/check", {
       method: "POST",
       body: new FormData(form),
     });
@@ -19,7 +19,7 @@ form.addEventListener("submit", async (event) => {
       return;
     }
 
-    statusText.textContent = `Found ${data.blocks.length} text blocks.`;
+    statusText.textContent = `Checked ${data.results.length} items.`;
     output.textContent = JSON.stringify(data, null, 2);
   } catch {
     statusText.textContent = "Could not reach the server.";

@@ -1,7 +1,13 @@
+import json
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from openai import APIError, RateLimitError
 
+from ai import check_contract
+from checklists import load_checklist
 from extract import extract_docx, extract_pdf
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
@@ -16,8 +22,8 @@ def home():
     return FileResponse("static/index.html")
 
 
-@app.post("/api/extract")
-async def extract(contract_type: str = Form(...), file: UploadFile = File(...)):
+@app.post("/api/check")
+async def check(contract_type: str = Form(...), file: UploadFile = File(...)):
     if contract_type not in CONTRACT_TYPES:
         raise HTTPException(400, "Please choose a contract type.")
 
@@ -43,4 +49,13 @@ async def extract(contract_type: str = Form(...), file: UploadFile = File(...)):
     if not blocks:
         raise HTTPException(422, "No text found. Scanned PDFs are not supported yet.")
 
-    return {"contract_type": contract_type, "blocks": blocks}
+    checklist = load_checklist(contract_type)
+
+    try:
+        result = await run_in_threadpool(check_contract, checklist, blocks)
+    except RateLimitError:
+        raise HTTPException(429, "Too many requests. Please wait a minute and try again.")
+    except (APIError, ValueError, json.JSONDecodeError):
+        raise HTTPException(502, "The AI service failed. Please try again.")
+
+    return {"contract_type": contract_type, "results": result.get("results", [])}
