@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-flash")
 MAX_ATTEMPTS = 3
 TIMEOUT_SECONDS = 90
+MAX_OUTPUT_TOKENS = 8000
 
 client = OpenAI(
     api_key=os.environ["DEEPSEEK_API_KEY"],
@@ -31,7 +32,8 @@ Answer only with json in exactly this shape:
       "item_id": "probation",
       "found": true,
       "risk": "High",
-      "explanation": "One or two sentences.",
+      "explanation": "Risk assessment in one or two sentences.",
+      "plain_language": "What the quoted clauses say, in simple words.",
       "quotes": [
         {"text": "Exact text copied from the contract.", "location": {"kind": "paragraph", "number": 3}}
       ]
@@ -41,11 +43,13 @@ Answer only with json in exactly this shape:
 Rules:
 - Return exactly one result per checklist item, in the same order.
 - risk is "Low", "Medium" or "High".
+- explanation is your risk assessment: why this risk level fits.
+- plain_language says only what the quoted clauses say, in at most 2 short sentences. No legal opinion or advice.
 - If found is true, give 1 to 3 quotes that support the finding.
 - Copy each quote character for character from the contract, at least one full clause. Do not translate, summarize or correct it.
 - If you must leave out text inside a quote, write …… in its place.
-- If found is false, quotes must be [].
-- Write explanations in LANGUAGE. Keep quotes in the original language."""
+- If found is false, quotes must be [] and plain_language must be null.
+- Write explanation and plain_language in LANGUAGE. Keep quotes in the original language."""
 
 
 class AIOutputError(Exception):
@@ -90,10 +94,15 @@ def check_contract(checklist: dict, blocks: list[dict], language: str = "English
             model=MODEL,
             messages=messages,
             response_format={"type": "json_object"},
-            max_tokens=4000,
+            max_tokens=MAX_OUTPUT_TOKENS,
+            extra_body={"thinking": {"type": "disabled"}},
             temperature=0,
         )
-        content = response.choices[0].message.content
+        choice = response.choices[0]
+        if choice.finish_reason != "stop":
+            logger.warning("AI stopped early: %s", choice.finish_reason)
+            raise AIOutputError()
+        content = choice.message.content
         try:
             return parse_result(content, item_ids)
         except ValueError as error:

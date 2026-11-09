@@ -78,6 +78,7 @@ def verify_findings(result: CheckResult, blocks: list[dict], checklist: dict) ->
             "found": finding.found,
             "risk": finding.risk,
             "explanation": finding.explanation,
+            "plain_language": finding.plain_language if quotes else None,
             "status": status,
             "quotes": quotes,
         })

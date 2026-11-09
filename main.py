@@ -4,8 +4,7 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from openai import APIError, APITimeoutError, RateLimitError
-
+from openai import APIConnectionError, APIError, APITimeoutError, RateLimitError
 from ai import AIOutputError, check_contract
 from checklists import load_checklist
 from extract import extract_docx, extract_pdf
@@ -15,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 CONTRACT_TYPES = {"employment", "lease", "business"}
+LANGUAGES = {"en": "English", "es": "Spanish", "zh": "Simplified Chinese"}
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -34,7 +34,15 @@ def home():
 
 
 @app.post("/api/check")
-async def check(contract_type: str = Form(...), file: UploadFile = File(...)):
+async def check(
+    contract_type: str = Form(...),
+    language: str = Form("en"),
+    file: UploadFile = File(...),
+):
+    if contract_type not in CONTRACT_TYPES:
+        raise HTTPException(400, "Please choose a contract type.")
+    if language not in LANGUAGES:
+        raise HTTPException(400, "Please choose a results language.")
     if contract_type not in CONTRACT_TYPES:
         raise HTTPException(400, "Please choose a contract type.")
 
@@ -63,14 +71,16 @@ async def check(contract_type: str = Form(...), file: UploadFile = File(...)):
     checklist = load_checklist(contract_type)
 
     try:
-        result = await run_in_threadpool(check_contract, checklist, blocks)
+        result = await run_in_threadpool(check_contract, checklist, blocks, LANGUAGES[language])
     except RateLimitError:
         raise HTTPException(429, "Too many requests. Please wait a minute and try again.")
     except APITimeoutError:
         raise HTTPException(504, "The AI service took too long. Please try again.")
+    except APIConnectionError:
+        raise HTTPException(502, "Could not reach the AI service. Please check the internet connection and try again.")
     except (APIError, AIOutputError) as error:
         logger.warning("AI check failed: %s", type(error).__name__)
         raise HTTPException(502, "The AI service failed. Please try again.")
 
     findings, stats = verify_findings(result, blocks, checklist)
-    return {"contract_type": contract_type, "results": findings, "stats": stats}
+    return {"contract_type": contract_type, "language": language, "results": findings, "stats": stats}

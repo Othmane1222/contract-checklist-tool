@@ -108,3 +108,18 @@ figcaption {
 blockquote {
   margin: 0;
 }
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+  margin-bottom: calc(var(--space) / 2);
+}
+
+.plain-column {
+  display: none;
+}
+
+.show-plain .plain-column {
+  display: table-cell;
+}

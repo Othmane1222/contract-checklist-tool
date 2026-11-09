@@ -13,12 +13,13 @@ CHECKLIST = {
 }
 
 
-def make_finding(item_id="probation", found=True, quotes=()):
+def make_finding(item_id="probation", found=True, quotes=(), plain_language="Simple words."):
     return Finding(
         item_id=item_id,
         found=found,
         risk="High",
         explanation="Test.",
+        plain_language=plain_language,
         quotes=[Quote(text=text, location=Location(kind="page", number=page)) for text, page in quotes],
     )
 
@@ -72,3 +73,18 @@ def test_not_found_drops_quotes():
     finding, _ = check(make_finding(item_id="termination", found=False, quotes=[("其中试用期为六个月", 1)]))
     assert finding["status"] == "not_found"
     assert finding["quotes"] == []
+
+def test_plain_language_kept_when_quote_verified():
+    finding, _ = check(make_finding(quotes=[("其中试用期为六个月", 1)]))
+    assert finding["plain_language"] == "Simple words."
+
+
+def test_plain_language_dropped_when_all_quotes_removed():
+    finding, _ = check(make_finding(quotes=[("其中试用期为三个月", 1)]))
+    assert finding["plain_language"] is None
+
+
+def test_long_plain_language_is_truncated():
+    finding = make_finding(plain_language="a" * 500)
+    assert len(finding.plain_language) == 400
+    assert finding.plain_language.endswith("…")

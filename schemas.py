@@ -1,6 +1,8 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+PLAIN_LANGUAGE_MAX = 400
 
 
 class Location(BaseModel):
@@ -18,7 +20,15 @@ class Finding(BaseModel):
     found: bool
     risk: Literal["Low", "Medium", "High"]
     explanation: str = Field(min_length=1)
+    plain_language: str | None = None
     quotes: list[Quote] = Field(default_factory=list, max_length=3)
+
+    @field_validator("plain_language")
+    @classmethod
+    def shorten_plain_language(cls, value: str | None) -> str | None:
+        if value and len(value) > PLAIN_LANGUAGE_MAX:
+            return value[: PLAIN_LANGUAGE_MAX - 1] + "…"
+        return value
 
 
 class CheckResult(BaseModel):

@@ -2,11 +2,13 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
 const RISK_ORDER = { High: 0, Medium: 1, Low: 2 };
 const STATUS_LABELS = {
+    
   quote_verified: "Yes – source found",
   unverified: "Unverified – please check manually",
   possibly_present: "Possibly present, check manually",
   not_found: "No",
 };
+const LANGUAGE_NAMES = { en: "English", es: "Spanish", zh: "Chinese" };
 
 const form = document.getElementById("upload-form");
 const button = form.querySelector("button");
@@ -16,6 +18,13 @@ const errorBox = document.getElementById("error");
 const results = document.getElementById("results");
 const summary = document.getElementById("summary");
 const tableBody = document.getElementById("results-body");
+const table = document.getElementById("results-table");
+const explainToggle = document.getElementById("explain-toggle");
+const resultsLanguage = document.getElementById("results-language");
+
+explainToggle.addEventListener("change", () => {
+  table.classList.toggle("show-plain", explainToggle.checked);
+});
 
 function showError(message) {
   errorBox.textContent = message;
@@ -76,6 +85,12 @@ function quotesCell(quotes) {
   return cell;
 }
 
+function plainCell(text) {
+  const cell = textCell(text || "—");
+  cell.className = "plain-column";
+  return cell;
+}
+
 function renderResults(findings) {
   const sorted = [...findings].sort((a, b) => RISK_ORDER[a.risk] - RISK_ORDER[b.risk]);
   for (const finding of sorted) {
@@ -86,6 +101,7 @@ function renderResults(findings) {
       riskCell(finding.risk),
       textCell(finding.explanation),
       quotesCell(finding.quotes),
+      plainCell(finding.plain_language),
     );
     tableBody.append(row);
   }
@@ -146,5 +162,6 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
+    resultsLanguage.textContent = `Results are in ${LANGUAGE_NAMES[data.language] || "English"}.`;
   renderResults(data.results);
 });
