@@ -40,7 +40,7 @@ Phase 2
 - Backend: Python 3.14, FastAPI, Uvicorn
 - Frontend: HTML, CSS and plain JavaScript in static/
 - Validation: Pydantic
-- AI API: DeepSeek (proposed, confirm in Milestone 3)
+- AI API: DeepSeek (confirmed)
 - Contact form email: to be decided (Milestone 7)
 - Hosting: to be decided (Milestone 10)
 
@@ -59,7 +59,8 @@ Then open http://127.0.0.1:8000
 6. "Explain it to me" mode
 7. Contact form
 8. Languages: English, Spanish, Chinese
-9. Design (frontend-design), including a "Save as PDF / Print" button with print-friendly CSS, and cards instead of table rows on small screens10. Evaluation set and accuracy report, tests, privacy check, deployment
+9. Design (frontend-design), including a "Save as PDF / Print" button with print-friendly CSS, and cards instead of table rows on small screens
+10. Evaluation set and accuracy report, tests, privacy check, deployment
 11. Design decisions and limitations write-up
 12. Phase 2: know-your-rights guides
 13. Phase 2: deadline extraction and .ics download
