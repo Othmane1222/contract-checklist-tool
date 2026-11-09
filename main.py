@@ -1,14 +1,17 @@
-import json
+import logging
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from openai import APIError, RateLimitError
+from openai import APIError, APITimeoutError, RateLimitError
 
-from ai import check_contract
+from ai import AIOutputError, check_contract
 from checklists import load_checklist
 from extract import extract_docx, extract_pdf
+from verify import verify_findings
+
+logger = logging.getLogger(__name__)
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 CONTRACT_TYPES = {"employment", "lease", "business"}
@@ -55,7 +58,11 @@ async def check(contract_type: str = Form(...), file: UploadFile = File(...)):
         result = await run_in_threadpool(check_contract, checklist, blocks)
     except RateLimitError:
         raise HTTPException(429, "Too many requests. Please wait a minute and try again.")
-    except (APIError, ValueError, json.JSONDecodeError):
+    except APITimeoutError:
+        raise HTTPException(504, "The AI service took too long. Please try again.")
+    except (APIError, AIOutputError) as error:
+        logger.warning("AI check failed: %s", type(error).__name__)
         raise HTTPException(502, "The AI service failed. Please try again.")
 
-    return {"contract_type": contract_type, "results": result.get("results", [])}
+    findings, stats = verify_findings(result, blocks, checklist)
+    return {"contract_type": contract_type, "results": findings, "stats": stats}

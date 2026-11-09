@@ -1,8 +1,8 @@
 {
   "contract_type": "lease",
   "items": [
-    {"id": "rent_deposit", "label": "Rent and deposit", "question": "Does the lease state the rent, payment schedule and deposit amount?"},
-    {"id": "early_termination", "label": "Early termination", "question": "Does the lease explain how either party can end it early, and any penalty?"},
-    {"id": "repairs", "label": "Repairs", "question": "Does the lease say who pays for repairs?"}
+    {"id": "rent_deposit", "label": "Rent and deposit", "question": "Does the lease state the rent, payment schedule and deposit amount?", "keywords": ["租金", "押金"]},
+    {"id": "early_termination", "label": "Early termination", "question": "Does the lease explain how either party can end it early, and any penalty?", "keywords": ["提前解除", "提前退租"]},
+    {"id": "repairs", "label": "Repairs", "question": "Does the lease say who pays for repairs?", "keywords": ["维修"]}
   ]
 }
