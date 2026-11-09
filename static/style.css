@@ -1,0 +1,37 @@
+:root {
+  --color-text: #1f2328;
+  --color-muted: #59636e;
+  --color-border: #d1d9e0;
+  --color-background: #ffffff;
+  --font-body: system-ui, sans-serif;
+  --space: 1rem;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-background);
+}
+
+.container {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: var(--space);
+}
+
+form {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  max-width: 24rem;
+}
+
+.disclaimer {
+  color: var(--color-muted);
+}
+
+#output {
+  white-space: pre-wrap;
+  border: 1px solid var(--color-border);
+  padding: var(--space);
+}

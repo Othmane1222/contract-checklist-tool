@@ -2,10 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contract Checklist Tool</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <h1>Contract Checklist Tool</h1>
-  <p>Hello world! My server is running.</p>
+  <main class="container">
+    <h1>Contract Checklist Tool</h1>
+    <p class="disclaimer">This is an automated checklist, not legal advice.</p>
+
+    <form id="upload-form">
+      <label for="contract-type">Contract type</label>
+      <select id="contract-type" name="contract_type" required>
+        <option value="">Choose…</option>
+        <option value="employment">Employment contract</option>
+        <option value="lease">Apartment lease</option>
+        <option value="business">Business agreement</option>
+      </select>
+
+      <label for="file">Contract file (PDF or DOCX, max 10 MB)</label>
+      <input id="file" name="file" type="file" accept=".pdf,.docx" required>
+
+      <button type="submit">Check contract</button>
+    </form>
+
+    <p id="status" role="status"></p>
+    <pre id="output"></pre>
+  </main>
+  <script src="/static/app.js"></script>
 </body>
-</html>         
+</html>
