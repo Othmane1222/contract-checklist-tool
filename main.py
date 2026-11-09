@@ -1,8 +1,8 @@
 import logging
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from openai import APIError, APITimeoutError, RateLimitError
 
@@ -18,6 +18,14 @@ CONTRACT_TYPES = {"employment", "lease", "business"}
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.middleware("http")
+async def limit_upload_size(request: Request, call_next):
+    length = request.headers.get("content-length", "")
+    if request.url.path == "/api/check" and length.isdigit() and int(length) > MAX_FILE_SIZE + 1024 * 1024:
+        return JSONResponse({"detail": "The file is too large. The limit is 10 MB."}, status_code=413)
+    return await call_next(request)
 
 
 @app.get("/")

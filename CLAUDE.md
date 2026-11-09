@@ -59,8 +59,7 @@ Then open http://127.0.0.1:8000
 6. "Explain it to me" mode
 7. Contact form
 8. Languages: English, Spanish, Chinese
-9. Design (frontend-design)
-10. Evaluation set and accuracy report, tests, privacy check, deployment
+9. Design (frontend-design), including a "Save as PDF / Print" button with print-friendly CSS, and cards instead of table rows on small screens10. Evaluation set and accuracy report, tests, privacy check, deployment
 11. Design decisions and limitations write-up
 12. Phase 2: know-your-rights guides
 13. Phase 2: deadline extraction and .ics download

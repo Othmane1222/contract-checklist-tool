@@ -26,8 +26,28 @@
       <button type="submit">Check contract</button>
     </form>
 
-    <p id="status" role="status"></p>
-    <pre id="output"></pre>
+        <p id="status" role="status"></p>
+    <p id="error" class="error" role="alert" hidden></p>
+
+    <section id="results" hidden>
+      <h2>Results</h2>
+      <p class="disclaimer">This is an automated checklist, not legal advice.</p>
+      <p id="summary"></p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Checklist item</th>
+              <th scope="col">Found?</th>
+              <th scope="col">Risk</th>
+              <th scope="col">Short explanation</th>
+              <th scope="col">Source quote</th>
+            </tr>
+          </thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
   <script src="/static/app.js"></script>
 </body>
