@@ -1,3 +1,5 @@
+
+import html
 import json
 import re
 from pathlib import Path
@@ -81,3 +83,16 @@ def test_every_key_used_by_the_pages_exists():
         used |= set(USED_IN_JS.findall(path.read_text(encoding="utf-8")))
     missing = sorted(used - public_keys(ENGLISH))
     assert not missing, missing
+    
+
+FALLBACK_TEXT = re.compile(r'data-i18n="([^"]+)"[^>]*>([^<]*)<')
+
+
+def test_html_fallback_text_matches_english():
+    mismatches = []
+    for path in STATIC_DIR.glob("*.html"):
+        for key, text in FALLBACK_TEXT.findall(path.read_text(encoding="utf-8")):
+            text = html.unescape(text.strip())
+            if text and text != ENGLISH.get(key):
+                mismatches.append(f"{path.name}: {key}")
+    assert not mismatches, mismatches

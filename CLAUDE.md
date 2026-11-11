@@ -37,6 +37,12 @@ Phase 2
 - Design: plain, neutral layout for now. All styling lives in static/style.css using CSS variables, so it is easy to restyle.
 - Upload consent checkbox: built but off (REQUIRE_UPLOAD_CONSENT in static/check.js), pending my PIPL review. If turned on, also enforce it on the server.
 
+## Privacy policy to-do (for my PIPL review)
+- Hosting location: planned outside mainland China (to be confirmed in Milestone 10c). Check cross-border transfer rules for users in China.
+- Contract text is sent to DeepSeek (stored in China, per its policy); consider requesting a training opt-out.
+- Decide whether to turn on REQUIRE_UPLOAD_CONSENT (and enforce it on the server).
+- Server swap memory: disable it in Milestone 10c so "not written to disk" stays accurate.
+
 ## Stack
 - Backend: Python 3.14, FastAPI, Uvicorn
 - Frontend: HTML, CSS and plain JavaScript in static/
