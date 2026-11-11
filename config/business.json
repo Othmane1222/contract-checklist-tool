@@ -1,8 +1,8 @@
 {
   "contract_type": "business",
   "items": [
-    {"id": "payment_terms", "label": "Payment terms", "question": "Does the contract state amounts, deadlines and payment method?", "keywords": ["付款", "支付"]},
-    {"id": "liability_cap", "label": "Liability cap", "question": "Does the contract limit either party's liability?", "keywords": ["责任限额", "赔偿上限"]},
-    {"id": "dispute_resolution", "label": "Dispute resolution", "question": "Does the contract say how disputes are resolved, and where?", "keywords": ["争议", "仲裁", "诉讼"]}
+    {"id": "payment_terms", "label": {"en": "Payment terms", "es": "Condiciones de pago", "zh": "付款条款"}, "question": "Does the contract state amounts, deadlines and payment method?", "keywords": ["付款", "支付"]},
+    {"id": "liability_cap", "label": {"en": "Liability cap", "es": "Límite de responsabilidad", "zh": "责任限额"}, "question": "Does the contract limit either party's liability?", "keywords": ["责任限额", "赔偿上限"]},
+    {"id": "dispute_resolution", "label": {"en": "Dispute resolution", "es": "Resolución de disputas", "zh": "争议解决"}, "question": "Does the contract say how disputes are resolved, and where?", "keywords": ["争议", "仲裁", "诉讼"]}
   ]
 }

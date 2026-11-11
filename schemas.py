@@ -1,7 +1,7 @@
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
-
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from checklists import load_checklist
 PLAIN_LANGUAGE_MAX = 400
 
 
@@ -38,7 +38,7 @@ SINGLE_LINE = r"^[^\r\n]*$"
 
 
 class SummaryItem(BaseModel):
-    label: str = Field(min_length=1, max_length=100, pattern=SINGLE_LINE)
+    item_id: str = Field(min_length=1, max_length=50, pattern=r"^[a-z_]+$")
     status: Literal["quote_verified", "unverified", "possibly_present", "not_found"]
     risk: Literal["Low", "Medium", "High"]
 
@@ -50,4 +50,12 @@ class ContactRequest(BaseModel):
     contract_type: Literal["employment", "lease", "business"]
     consent: Literal[True]
     summary: list[SummaryItem] = Field(default_factory=list, max_length=30)
+    user_language: Literal["en", "es", "zh"] = "en"
     website: str = ""  # honeypot: humans never see or fill this field
+    
+    @model_validator(mode="after")
+    def check_summary_items(self):
+        known = {item["id"] for item in load_checklist(self.contract_type)["items"]}
+        if any(entry.item_id not in known for entry in self.summary):
+            raise ValueError("Unknown checklist item in summary.")
+        return self

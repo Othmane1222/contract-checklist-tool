@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 import main
-from mailer import build_message
+from mailer import EMAIL_TEXT, build_message
 from ratelimit import RateLimiter
 from schemas import ContactRequest
 
@@ -31,6 +31,7 @@ def test_valid_request_is_accepted():
     {"consent": False},
     {"description": "x" * 1001},
     {"contract_type": "other"},
+    {"summary": [{"item_id": "made_up", "status": "not_found", "risk": "Low"}]},
 ])
 def test_invalid_requests_are_rejected(changes):
     with pytest.raises(ValidationError):
@@ -39,13 +40,14 @@ def test_invalid_requests_are_rejected(changes):
 
 def test_summary_never_contains_quote_text():
     request = make_request(summary=[{
-        "label": "Probation period",
+        "item_id": "probation",
         "status": "quote_verified",
         "risk": "High",
         "quotes": [{"text": "其中试用期为六个月"}],
     }])
-    body = build_message(request, "sender@qq.com", "lawyer@example.com").get_content()
+    body = build_message(request, "sender@163.com", "lawyer@example.com").get_content()
     assert "Probation period" in body
+    assert "as reported by the user" in body
     assert "试用期" not in body
 
 
@@ -70,3 +72,22 @@ def test_honeypot_pretends_success_without_sending(monkeypatch):
     client = TestClient(main.app)
     response = client.post("/api/contact", json={**VALID, "website": "http://spam.example"})
     assert response.status_code == 200
+    
+
+def test_email_uses_contact_language_not_user_language():
+    request = make_request(
+        user_language="en",
+        summary=[{"item_id": "probation", "status": "quote_verified", "risk": "High"}],
+    )
+    body = build_message(request, "sender@163.com", "lawyer@example.com", language="es").get_content()
+    assert "Período de prueba" in body
+    assert "Idioma del usuario: inglés" in body
+
+
+def test_email_text_has_same_keys_in_every_language():
+    english = EMAIL_TEXT["en"]
+    for language, text in EMAIL_TEXT.items():
+        assert text.keys() == english.keys(), language
+        for key, value in english.items():
+            if isinstance(value, dict):
+                assert text[key].keys() == value.keys(), f"{language}: {key}"

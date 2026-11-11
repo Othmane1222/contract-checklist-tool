@@ -2,6 +2,7 @@ import re
 import unicodedata
 from bisect import bisect_right
 
+from checklists import label_for
 from schemas import CheckResult
 
 MIN_QUOTE_LENGTH = 8
@@ -46,10 +47,10 @@ def has_keyword(words: list[str], document: str) -> bool:
     return any(normalize(word) and normalize(word) in document for word in words)
 
 
-def verify_findings(result: CheckResult, blocks: list[dict], checklist: dict) -> tuple[list[dict], dict]:
+def verify_findings(result: CheckResult, blocks: list[dict], checklist: dict, language: str = "en") -> tuple[list[dict], dict]:
     document, starts = build_document(blocks)
     keywords = {item["id"]: item.get("keywords", []) for item in checklist["items"]}
-    labels = {item["id"]: item.get("label", item["id"]) for item in checklist["items"]}
+    items = {item["id"]: item for item in checklist["items"]}
     stats = {"quotes_removed": 0, "locations_corrected": 0}
     findings = []
 
@@ -74,7 +75,7 @@ def verify_findings(result: CheckResult, blocks: list[dict], checklist: dict) ->
 
         findings.append({
             "item_id": finding.item_id,
-                        "label": labels.get(finding.item_id, finding.item_id),
+            "label": label_for(items.get(finding.item_id, {"id": finding.item_id}), language),
             "found": finding.found,
             "risk": finding.risk,
             "explanation": finding.explanation,

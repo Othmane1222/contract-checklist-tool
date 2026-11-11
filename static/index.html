@@ -8,70 +8,74 @@
 </head>
 <body>
   <main class="container">
-    <h1>Contract Checklist Tool</h1>
-    <p class="disclaimer">This is an automated checklist, not legal advice.</p>
-
-    <form id="upload-form">
-      <label for="contract-type">Contract type</label>
-      <select id="contract-type" name="contract_type" required>
-        <option value="">Choose…</option>
-        <option value="employment">Employment contract</option>
-        <option value="lease">Apartment lease</option>
-        <option value="business">Business agreement</option>
-      </select>
-    
-      <label for="language">Results language</label>
-      <select id="language" name="language">
+    <div class="top-bar">
+      <label for="ui-language" data-i18n="language.label">Language</label>
+      <select id="ui-language">
         <option value="en">English</option>
         <option value="es">Español</option>
         <option value="zh">中文</option>
       </select>
+    </div>
 
-      <label for="file">Contract file (PDF or DOCX, max 10 MB)</label>
+    <h1 data-i18n="page.title">Contract Checklist Tool</h1>
+    <p class="disclaimer" data-i18n="disclaimer">This is an automated checklist, not legal advice.</p>
+
+    <form id="upload-form">
+      <label for="contract-type" data-i18n="upload.contract_type">Contract type</label>
+      <select id="contract-type" name="contract_type" required>
+        <option value="" data-i18n="upload.choose">Choose…</option>
+        <option value="employment" data-i18n="type.employment">Employment contract</option>
+        <option value="lease" data-i18n="type.lease">Apartment lease</option>
+        <option value="business" data-i18n="type.business">Business agreement</option>
+      </select>
+
+      <label for="file" data-i18n="upload.file">Contract file (PDF or DOCX, max 10 MB)</label>
       <input id="file" name="file" type="file" accept=".pdf,.docx" required>
 
-      <button type="submit">Check contract</button>
+      <button type="submit" data-i18n="upload.submit">Check contract</button>
     </form>
 
-        <p id="status" role="status"></p>
+    <p id="status" role="status"></p>
     <p id="error" class="error" role="alert" hidden></p>
 
     <section id="results" hidden>
-      <h2>Results</h2>
-      <p class="disclaimer">This is an automated checklist, not legal advice.</p>
+      <h2 data-i18n="results.title">Results</h2>
+      <p class="disclaimer" data-i18n="disclaimer">This is an automated checklist, not legal advice.</p>
       <p id="summary"></p>
-      <p id="results-language"></p>
+      <p id="results-language-note" class="notice" hidden></p>
+      <button type="button" id="recheck" hidden></button>
+      <p id="reupload-note" class="notice" hidden></p>
       <label class="toggle">
         <input id="explain-toggle" type="checkbox">
-        Explain it to me
+        <span data-i18n="results.explain">Explain it to me</span>
       </label>
       <div class="table-wrapper">
         <table id="results-table">
           <thead>
             <tr>
-              <th scope="col">Checklist item</th>
-              <th scope="col">Found?</th>
-              <th scope="col">Risk</th>
-              <th scope="col">Short explanation</th>
-              <th scope="col">Source quote</th>
-              <th scope="col" class="plain-column">In plain words</th>
+              <th scope="col" data-i18n="table.item">Checklist item</th>
+              <th scope="col" data-i18n="table.found">Found?</th>
+              <th scope="col" data-i18n="table.risk">Risk</th>
+              <th scope="col" data-i18n="table.explanation">Short explanation</th>
+              <th scope="col" data-i18n="table.quote">Source quote</th>
+              <th scope="col" class="plain-column" data-i18n="table.plain">In plain words</th>
             </tr>
           </thead>
           <tbody id="results-body"></tbody>
         </table>
       </div>
-      
+
       <section id="contact" class="contact">
-        <h3>Get help from a lawyer</h3>
-        <p id="contact-highlight" class="contact-highlight" hidden>This contract has high-risk items. A lawyer can review them with you.</p>
+        <h3 data-i18n="contact.title">Get help from a lawyer</h3>
+        <p id="contact-highlight" class="contact-highlight" data-i18n="contact.highlight" hidden>This contract has high-risk items. A lawyer can review them with you.</p>
         <form id="contact-form">
-          <label for="contact-name">Name</label>
+          <label for="contact-name" data-i18n="contact.name">Name</label>
           <input id="contact-name" maxlength="100" required>
 
-          <label for="contact-email">Email</label>
+          <label for="contact-email" data-i18n="contact.email">Email</label>
           <input id="contact-email" type="email" maxlength="254" required>
 
-          <label for="contact-description">Short description</label>
+          <label for="contact-description" data-i18n="contact.description">Short description</label>
           <textarea id="contact-description" maxlength="1000" rows="4" required></textarea>
 
           <div class="hp" aria-hidden="true">
@@ -81,14 +85,14 @@
 
           <label class="checkbox">
             <input id="contact-summary" type="checkbox">
-            Include my checklist summary (item names, status and risk only, never contract text)
+            <span data-i18n="contact.summary_option">Include my checklist summary (item names, status and risk only, never contract text)</span>
           </label>
           <label class="checkbox">
             <input id="contact-consent" type="checkbox" required>
-            I agree that my name, email and message are sent to a lawyer so they can contact me. My contract is not sent.
+            <span data-i18n="contact.consent">I agree that my name, email and message are sent to a lawyer so they can contact me. My contract is not sent.</span>
           </label>
 
-          <button type="submit">Send</button>
+          <button type="submit" data-i18n="contact.send">Send</button>
         </form>
         <p id="contact-status" role="status"></p>
         <p id="contact-error" class="error" role="alert" hidden></p>

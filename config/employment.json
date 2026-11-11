@@ -1,8 +1,8 @@
 {
   "contract_type": "employment",
   "items": [
-    {"id": "contract_term", "label": "Contract term", "question": "Does the contract state its start date, end date or duration?", "keywords": ["合同期限", "期限"]},
-    {"id": "probation", "label": "Probation period", "question": "Does the contract set a probation period and probation salary?", "keywords": ["试用期"]},
-    {"id": "termination", "label": "Termination", "question": "Does the contract explain how either party can end it, and any penalty?", "keywords": ["解除", "终止"]}
+    {"id": "contract_term", "label": {"en": "Contract term", "es": "Duración del contrato", "zh": "合同期限"}, "question": "Does the contract state its start date, end date or duration?", "keywords": ["合同期限", "期限"]},
+    {"id": "probation", "label": {"en": "Probation period", "es": "Período de prueba", "zh": "试用期"}, "question": "Does the contract set a probation period and probation salary?", "keywords": ["试用期"]},
+    {"id": "termination", "label": {"en": "Termination", "es": "Terminación del contrato", "zh": "合同的解除和终止"}, "question": "Does the contract explain how either party can end it, and any penalty?", "keywords": ["解除", "终止"]}
   ]
 }
