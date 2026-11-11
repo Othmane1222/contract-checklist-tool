@@ -20,7 +20,10 @@ The page and the results are available in English, Spanish and Simplified Chines
 
 ## Privacy
 
-Contracts are processed in memory and never stored. Contract text is never logged.
+- The uploaded file is deleted from memory after processing. It is not written to disk or to logs on our server.
+- The contract text is sent to the AI provider, DeepSeek, for analysis. DeepSeek's own privacy policy applies to that text.
+- Messages sent to a lawyer never include the contract.
+- The server will be hosted outside mainland China (to be confirmed at deployment).
 
 ## Run it locally (Windows)
 
