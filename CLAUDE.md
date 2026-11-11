@@ -35,6 +35,7 @@ Phase 2
 - Evaluation test set with an accuracy report, automated tests for parsing and validation, and a live deployment.
 - I am in mainland China: choose an AI API and hosting reachable from here, and say where a VPN is needed. Cheap model in development, stronger model for final testing.
 - Design: plain, neutral layout for now. All styling lives in static/style.css using CSS variables, so it is easy to restyle.
+- Upload consent checkbox: built but off (REQUIRE_UPLOAD_CONSENT in static/check.js), pending my PIPL review. If turned on, also enforce it on the server.
 
 ## Stack
 - Backend: Python 3.14, FastAPI, Uvicorn

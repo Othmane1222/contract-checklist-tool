@@ -1,5 +1,6 @@
 ERROR_MESSAGES = {
     "invalid_request": "Something in the request was missing or invalid.",
+    "length_required": "The upload was incomplete. Please try again.",
     "invalid_contract_type": "Please choose a contract type.",
     "invalid_language": "Please choose a language.",
     "unsupported_file_type": "Only PDF and DOCX files are supported.",

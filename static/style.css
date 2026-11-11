@@ -737,3 +737,53 @@ input[type="file"] {
   background: var(--qing);
   border-radius: 50%;
 }
+
+/* ---------- Verdict and language note ---------- */
+.verdict {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--ink-muted);
+  border-radius: var(--radius-sm);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.verdict p {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.verdict a {
+  display: inline-block;
+  margin-top: var(--space-2);
+  font-weight: 600;
+}
+
+.verdict-high {
+  background: var(--seal-tint);
+  border-left-color: var(--seal);
+}
+
+.verdict-attention {
+  background: var(--amber-tint);
+  border-left-color: var(--amber);
+}
+
+.verdict-clear {
+  background: var(--qing-tint);
+  border-left-color: var(--qing);
+}
+
+.language-note p:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.upload-notice {
+  margin-top: var(--space-3);
+}

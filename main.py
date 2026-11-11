@@ -7,6 +7,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.formparsers import MultiPartParser
 from openai import APIConnectionError, APIError, APITimeoutError, RateLimitError
 
 from ai import AIOutputError, check_contract
@@ -22,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 MAX_FILE_MB = 10
 MAX_FILE_SIZE = MAX_FILE_MB * 1024 * 1024
+# Keep uploads in memory instead of a temporary file on disk (default limit is 1 MB).
+MultiPartParser.spool_max_size = MAX_FILE_SIZE + 1024 * 1024
 AI_LANGUAGES = {"en": "English", "es": "Spanish", "zh": "Simplified Chinese"}
 # In-memory limit: requires a single server worker (uvicorn --workers 1).
 CONTACT_LIMIT = RateLimiter(max_requests=3, window_seconds=600)
@@ -43,9 +46,12 @@ async def handle_validation_error(request: Request, error: RequestValidationErro
 
 @app.middleware("http")
 async def limit_upload_size(request: Request, call_next):
-    length = request.headers.get("content-length", "")
-    if request.url.path == "/api/check" and length.isdigit() and int(length) > MAX_FILE_SIZE + 1024 * 1024:
-        return JSONResponse(error_body("file_too_large", max_mb=MAX_FILE_MB), status_code=413)
+    if request.url.path == "/api/check":
+        length = request.headers.get("content-length", "")
+        if not length.isdigit():
+            return JSONResponse(error_body("length_required"), status_code=411)
+        if int(length) > MAX_FILE_SIZE + 1024 * 1024:
+            return JSONResponse(error_body("file_too_large", max_mb=MAX_FILE_MB), status_code=413)
     return await call_next(request)
 
 

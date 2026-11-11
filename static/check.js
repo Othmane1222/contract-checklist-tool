@@ -3,6 +3,8 @@ const MAX_FILE_MB = 10;
 const MAX_FILE_SIZE = MAX_FILE_MB * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
 const RISK_ORDER = { High: 0, Medium: 1, Low: 2 };
+// Set to true after the PIPL review to require consent before each upload.
+const REQUIRE_UPLOAD_CONSENT = false;
 
 let lastCheck = null;
 
@@ -19,7 +21,18 @@ const table = document.getElementById("results-table");
 const explainToggle = document.getElementById("explain-toggle");
 const languageNote = document.getElementById("results-language-note");
 const recheckButton = document.getElementById("recheck");
-const reuploadNote = document.getElementById("reupload-note");
+const languageNoteText = document.getElementById("results-language-text");
+const fileGoneNote = document.getElementById("file-gone-note");
+const verdict = document.getElementById("verdict");
+const verdictText = document.getElementById("verdict-text");
+const verdictLink = document.getElementById("verdict-link");
+const uploadConsentField = document.getElementById("upload-consent-field");
+const uploadConsent = document.getElementById("upload-consent");
+
+if (REQUIRE_UPLOAD_CONSENT) {
+  uploadConsentField.hidden = false;
+  uploadConsent.required = true;
+}
 const printButton = document.getElementById("print-button");
 const printMeta = document.getElementById("print-meta");
 const contactForm = document.getElementById("contact-form");
@@ -125,21 +138,38 @@ function plainCell(text) {
 function updateLanguageNote(resultsLanguage) {
   const differs = resultsLanguage !== currentLanguage;
   languageNote.hidden = !differs;
-  recheckButton.hidden = true;
-  reuploadNote.hidden = true;
   if (!differs) return;
 
+  const hasFile = fileInput.files.length > 0;
   const newLanguage = t(`language.${currentLanguage}`);
-  languageNote.textContent = t("results.language_note", { language: t(`language.${resultsLanguage}`) });
-  if (fileInput.files.length > 0) {
-    recheckButton.textContent = t("results.recheck", { language: newLanguage });
-    recheckButton.hidden = false;
-  } else {
-    reuploadNote.textContent = t("results.reupload", { language: newLanguage });
-    reuploadNote.hidden = false;
-  }
+  languageNoteText.textContent = t("results.language_note", { language: t(`language.${resultsLanguage}`) });
+  recheckButton.textContent = t("results.recheck", { language: newLanguage });
+  recheckButton.disabled = !hasFile;
+  fileGoneNote.hidden = hasFile;
+  fileGoneNote.textContent = hasFile ? "" : t("results.file_gone", { language: newLanguage });
 }
 
+function renderVerdict(findings) {
+  const high = findings.filter((finding) => finding.risk === "High").length;
+  const attention = findings.filter(
+    (finding) =>
+      finding.risk !== "High" &&
+      (finding.risk === "Medium" || finding.status === "unverified" || finding.status === "possibly_present"),
+  ).length;
+
+  let level = "clear";
+  let text = t("verdict.clear");
+  if (high > 0) {
+    level = "high";
+    text = t("verdict.high", { count: high });
+  } else if (attention > 0) {
+    level = "attention";
+    text = t("verdict.attention", { count: attention });
+  }
+  verdict.className = `verdict verdict-${level}`;
+  verdictText.textContent = text;
+  verdictLink.hidden = level !== "high";
+}
 function renderResults(data) {
   tableBody.replaceChildren();
   const findings = data.results;
@@ -170,6 +200,7 @@ function renderResults(data) {
   });
   contactSection.classList.toggle("highlight", high > 0);
   contactHighlight.hidden = high === 0;
+  renderVerdict(findings);
   updateLanguageNote(data.language);
   results.hidden = false;
 }
@@ -215,6 +246,9 @@ form.addEventListener("submit", async (event) => {
 });
 
 recheckButton.addEventListener("click", () => form.requestSubmit());
+fileInput.addEventListener("change", () => {
+  if (lastCheck) clearPage();
+});
 printButton.addEventListener("click", () => window.print());
 explainToggle.addEventListener("change", () => {
   table.classList.toggle("show-plain", explainToggle.checked);

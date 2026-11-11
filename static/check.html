@@ -62,21 +62,36 @@
           <input id="file" name="file" type="file" accept=".pdf,.docx" aria-describedby="file-hint" required>
         </div>
 
+                <label id="upload-consent-field" class="checkbox" hidden>
+          <input id="upload-consent" type="checkbox">
+          <span data-i18n="upload.consent">I understand that my contract text is sent to your server and to DeepSeek for analysis.</span>
+        </label>
+
         <button class="button" type="submit" data-i18n="upload.submit">Check contract</button>
+        <p class="hint upload-notice" data-i18n="upload.notice">When you click Check contract, the text is sent to our server and to our AI provider, DeepSeek, for analysis. It isn't saved on our server.</p>
         <p id="status" class="status" role="status"></p>
       </form>
 
       <section id="results" class="results" hidden>
         <p id="print-meta" class="print-only"></p>
         <div class="results-header">
+                    
+        <div id="verdict" class="verdict" role="status">
+          <p id="verdict-text"></p>
+          <a id="verdict-link" href="#contact" data-i18n="verdict.high_link" hidden>Contact a lawyer</a>
+        </div>
           <h2 data-i18n="results.title">Results</h2>
           <button type="button" id="print-button" class="button button-secondary no-print" data-i18n="results.print">Save as PDF</button>
         </div>
         <p class="disclaimer" data-i18n="disclaimer">This is an automated checklist, not legal advice.</p>
         <p id="summary"></p>
-        <p id="results-language-note" class="notice" hidden></p>
-        <button type="button" id="recheck" class="button button-secondary no-print" hidden></button>
-        <p id="reupload-note" class="notice no-print" hidden></p>
+                <div id="results-language-note" class="language-note no-print" hidden>
+          <p>
+            <span id="results-language-text"></span>
+            <button type="button" id="recheck" class="button button-secondary" aria-describedby="file-gone-note"></button>
+          </p>
+          <p id="file-gone-note" class="notice" hidden></p>
+        </div>
 
         <label class="toggle no-print">
           <input id="explain-toggle" type="checkbox">
