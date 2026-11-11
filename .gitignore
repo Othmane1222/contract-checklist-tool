@@ -8,3 +8,5 @@ __pycache__/
 
 # Secret keys: never commit these
 .env
+.playwright-mcp/
+screenshots/ 

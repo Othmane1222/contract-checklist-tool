@@ -36,30 +36,36 @@
   </header>
 
   <main id="main">
-    <div class="container">
-      <section class="hero">
-        <div>
-          <h1 data-i18n="hero.title">Understand your Chinese contract before you sign it.</h1>
-          <p class="lead" data-i18n="hero.lead">Upload an employment contract, apartment lease or business agreement. See what's missing and what's risky, with the exact clause it comes from.</p>
-          <a class="button" href="/check" data-i18n="nav.check">Check my contract</a>
-          <p class="hero-note" data-i18n="hero.note">Your contract text is sent to our server and to our AI provider, DeepSeek, for analysis. It isn't saved on our server.</p>
-        </div>
-
-        <figure class="demo">
-          <figcaption class="demo-caption" data-i18n="demo.caption">Example result</figcaption>
-          <p class="demo-label" data-i18n="demo.clause_label">Contract text, paragraph 5</p>
-          <blockquote class="demo-clause" lang="zh-CN">第三条 劳动报酬：乙方月工资为人民币15,000元。<mark>试用期工资为正式工资的70%。</mark></blockquote>
-          <div class="demo-result">
-            <h3>
-              <span data-i18n="demo.item">Probation period</span>
-              <span class="risk risk-high" data-i18n="risk.High">High</span>
-            </h3>
-            <p data-i18n="demo.explanation">Under Chinese labour law, probation pay is generally at least 80% of the agreed salary. This clause sets it at 70%.</p>
+    <div class="hero-band">
+      <div class="container">
+        <section class="hero">
+          <div>
+            <h1 data-i18n="hero.title">Understand your Chinese contract before you sign it.</h1>
+            <p class="lead" data-i18n="hero.lead">Upload an employment contract, apartment lease or business agreement. See what's missing and what's risky, with the exact clause it comes from.</p>
+            <a class="button" href="/check" data-i18n="nav.check">Check my contract</a>
+            <p class="hero-note" data-i18n="hero.note">Your contract text is sent to our server and to our AI provider, DeepSeek, for analysis. It isn't saved on our server.</p>
           </div>
-        </figure>
-      </section>
 
-      <section id="how" class="section">
+          <figure class="demo">
+            <figcaption class="demo-caption" data-i18n="demo.caption">Example result</figcaption>
+            <blockquote class="demo-clause">
+              <span class="demo-label" data-i18n="demo.clause_label">Contract text, paragraph 5</span>
+              <span lang="zh-CN">第三条 劳动报酬：乙方月工资为人民币15,000元。<mark>试用期工资为正式工资的70%。</mark></span>
+            </blockquote>
+            <div class="demo-result">
+              <h3>
+                <span data-i18n="demo.item">Probation period</span>
+                <span class="risk risk-high" data-i18n="risk.High">High</span>
+              </h3>
+              <p data-i18n="demo.explanation">Under Chinese labour law, probation pay is generally at least 80% of the agreed salary. This clause sets it at 70%.</p>
+            </div>
+          </figure>
+        </section>
+      </div>
+    </div>
+
+    <section id="how" class="section">
+      <div class="container">
         <h2 data-i18n="how.title">How it works</h2>
         <ol class="steps">
           <li class="panel">
@@ -75,9 +81,11 @@
             <p data-i18n="how.step3.text">English, Spanish or Chinese, with risks marked and a plain-language explanation of each clause.</p>
           </li>
         </ol>
-      </section>
+      </div>
+    </section>
 
-      <section id="types" class="section">
+    <section id="types" class="section">
+      <div class="container">
         <h2 data-i18n="types.title">What we check</h2>
         <p class="lead" data-i18n="types.lead">Choose the type that matches your contract.</p>
         <div class="type-cards">
@@ -97,9 +105,11 @@
             <a href="/check?type=business" data-i18n="types.business.link">Check a business agreement</a>
           </article>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="privacy" class="section">
+    <section id="privacy" class="band">
+      <div class="container">
         <h2 data-i18n="privacy.title">How we handle your contract</h2>
         <p class="lead" data-i18n="privacy.lead">Here is exactly what happens to your contract.</p>
         <ul class="facts">
@@ -107,14 +117,16 @@
           <li data-i18n="privacy.point2">The contract text is sent to our AI provider, DeepSeek, for analysis. DeepSeek's own privacy policy applies to that text.</li>
           <li data-i18n="privacy.point3">We never attach your contract to messages sent to a lawyer.</li>
         </ul>
-      </section>
+      </div>
+    </section>
 
-      <section class="section">
+    <section class="section">
+      <div class="container">
         <h2 data-i18n="lawyer.title">Need a lawyer?</h2>
         <p data-i18n="lawyer.text">After your check, you can send a short message to a lawyer from the results page. Your contract is never attached.</p>
         <a class="button button-secondary" href="/check" data-i18n="nav.check">Check my contract</a>
-      </section>
-    </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -129,6 +141,7 @@
     </div>
   </footer>
 
+  <script src="/static/header.js"></script>
   <script src="/static/i18n.js"></script>
 </body>
 </html>
