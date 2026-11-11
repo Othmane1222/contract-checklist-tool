@@ -4,6 +4,7 @@
 # Temporary files Python creates
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Secret keys: never commit these
 .env

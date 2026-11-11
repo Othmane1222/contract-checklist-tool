@@ -60,6 +60,39 @@
           <tbody id="results-body"></tbody>
         </table>
       </div>
+      
+      <section id="contact" class="contact">
+        <h3>Get help from a lawyer</h3>
+        <p id="contact-highlight" class="contact-highlight" hidden>This contract has high-risk items. A lawyer can review them with you.</p>
+        <form id="contact-form">
+          <label for="contact-name">Name</label>
+          <input id="contact-name" maxlength="100" required>
+
+          <label for="contact-email">Email</label>
+          <input id="contact-email" type="email" maxlength="254" required>
+
+          <label for="contact-description">Short description</label>
+          <textarea id="contact-description" maxlength="1000" rows="4" required></textarea>
+
+          <div class="hp" aria-hidden="true">
+            <label for="contact-website">Website</label>
+            <input id="contact-website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <label class="checkbox">
+            <input id="contact-summary" type="checkbox">
+            Include my checklist summary (item names, status and risk only, never contract text)
+          </label>
+          <label class="checkbox">
+            <input id="contact-consent" type="checkbox" required>
+            I agree that my name, email and message are sent to a lawyer so they can contact me. My contract is not sent.
+          </label>
+
+          <button type="submit">Send</button>
+        </form>
+        <p id="contact-status" role="status"></p>
+        <p id="contact-error" class="error" role="alert" hidden></p>
+      </section>
     </section>
   </main>
   <script src="/static/app.js"></script>

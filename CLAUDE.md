@@ -41,8 +41,8 @@ Phase 2
 - Frontend: HTML, CSS and plain JavaScript in static/
 - Validation: Pydantic
 - AI API: DeepSeek (confirmed)
-- Contact form email: to be decided (Milestone 7)
-- Hosting: to be decided (Milestone 10)
+- Contact form email: SMTP via a dedicated 163 mailbox (fallback: Tencent Cloud SES over HTTPS)
+- Hosting: to be decided in Milestone 10 (AWS Free plan account available, Sydney only for now)
 
 ## How to run (Windows)
     .venv\Scripts\Activate.ps1
@@ -60,7 +60,7 @@ Then open http://127.0.0.1:8000
 7. Contact form
 8. Languages: English, Spanish, Chinese
 9. Design (frontend-design), including a "Save as PDF / Print" button with print-friendly CSS, and cards instead of table rows on small screens
-10. Evaluation set and accuracy report (run each contract at least twice to measure variation), tests, privacy check, deployment
+10. Evaluation set and accuracy report (run each contract at least twice to measure variation), tests, privacy check, deployment with a security checklist (HTTPS, firewall, process manager, automatic updates, SSH keys, a single uvicorn worker for the in-memory rate limit, and an SMTP send test from the server)
 11. Design decisions and limitations write-up
 12. Phase 2: know-your-rights guides
 13. Phase 2: deadline extraction and .ics download

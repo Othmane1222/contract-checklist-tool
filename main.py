@@ -1,5 +1,6 @@
 import logging
-
+import os
+import smtplib
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse
@@ -8,6 +9,9 @@ from openai import APIConnectionError, APIError, APITimeoutError, RateLimitError
 from ai import AIOutputError, check_contract
 from checklists import load_checklist
 from extract import extract_docx, extract_pdf
+from mailer import send_contact_email
+from ratelimit import RateLimiter
+from schemas import ContactRequest
 from verify import verify_findings
 
 logger = logging.getLogger(__name__)
@@ -15,6 +19,8 @@ logger = logging.getLogger(__name__)
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 CONTRACT_TYPES = {"employment", "lease", "business"}
 LANGUAGES = {"en": "English", "es": "Spanish", "zh": "Simplified Chinese"}
+# In-memory limit: requires a single server worker (uvicorn --workers 1).
+CONTACT_LIMIT = RateLimiter(max_requests=3, window_seconds=600)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -43,8 +49,6 @@ async def check(
         raise HTTPException(400, "Please choose a contract type.")
     if language not in LANGUAGES:
         raise HTTPException(400, "Please choose a results language.")
-    if contract_type not in CONTRACT_TYPES:
-        raise HTTPException(400, "Please choose a contract type.")
 
     name = (file.filename or "").lower()
     if name.endswith(".pdf"):
@@ -84,3 +88,27 @@ async def check(
 
     findings, stats = verify_findings(result, blocks, checklist)
     return {"contract_type": contract_type, "language": language, "results": findings, "stats": stats}
+
+
+@app.post("/api/contact")
+async def contact(request: Request, form: ContactRequest):
+    if form.website:
+        return {"ok": True}  # honeypot filled: pretend success, send nothing
+
+    client_ip = request.client.host if request.client else "unknown"
+    if not CONTACT_LIMIT.allow(client_ip):
+        raise HTTPException(429, "Too many messages. Please try again later.")
+
+    try:
+        await run_in_threadpool(send_contact_email, form)
+    except (smtplib.SMTPException, OSError) as error:
+        logger.warning("Contact email failed: %s", type(error).__name__)
+        fallback = os.getenv("CONTACT_FALLBACK_EMAIL", "")
+        message = (
+            f"We couldn't send your message. Please email {fallback} directly."
+            if fallback
+            else "We couldn't send your message. Please try again later."
+        )
+        raise HTTPException(502, message)
+
+    return {"ok": True}

@@ -111,6 +111,8 @@ function renderResults(findings) {
     (finding) => finding.status === "unverified" || finding.status === "possibly_present",
   ).length;
   summary.textContent = `${findings.length} items checked · ${highRisk} high risk · ${toCheck} to check manually`;
+    contactSection.classList.toggle("highlight", highRisk > 0);
+  contactHighlight.hidden = highRisk === 0;
   results.hidden = false;
 }
 
@@ -161,7 +163,71 @@ form.addEventListener("submit", async (event) => {
     showError(typeof data.detail === "string" ? data.detail : "Something went wrong. Please try again.");
     return;
   }
-
+  lastCheck = data;
     resultsLanguage.textContent = `Results are in ${LANGUAGE_NAMES[data.language] || "English"}.`;
   renderResults(data.results);
+});
+
+const contactForm = document.getElementById("contact-form");
+const contactButton = contactForm.querySelector("button");
+const contactSection = document.getElementById("contact");
+const contactHighlight = document.getElementById("contact-highlight");
+const contactStatus = document.getElementById("contact-status");
+const contactError = document.getElementById("contact-error");
+let lastCheck = null;
+
+function showContactError(message) {
+  contactError.textContent = message;
+  contactError.hidden = false;
+}
+
+contactForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  contactError.hidden = true;
+  contactStatus.textContent = "";
+  if (!lastCheck) return;
+
+  const includeSummary = document.getElementById("contact-summary").checked;
+  const payload = {
+    name: document.getElementById("contact-name").value.trim(),
+    email: document.getElementById("contact-email").value.trim(),
+    description: document.getElementById("contact-description").value.trim(),
+    contract_type: lastCheck.contract_type,
+    consent: document.getElementById("contact-consent").checked,
+    website: document.getElementById("contact-website").value,
+    summary: includeSummary
+      ? lastCheck.results.map((finding) => ({ label: finding.label, status: finding.status, risk: finding.risk }))
+      : [],
+  };
+
+  contactButton.disabled = true;
+  contactStatus.textContent = "Sending…";
+  let response = null;
+  try {
+    response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    response = null;
+  }
+  contactButton.disabled = false;
+  contactStatus.textContent = "";
+
+  if (!response) {
+    showContactError("Could not reach the server. Please try again.");
+    return;
+  }
+  if (response.ok) {
+    contactStatus.textContent = "Message sent. You'll get a reply by email.";
+    contactForm.reset();
+    return;
+  }
+  if (response.status === 422) {
+    showContactError("Please check your name, email and message, and tick the consent box.");
+    return;
+  }
+  const data = await readJson(response);
+  showContactError(data && typeof data.detail === "string" ? data.detail : "Something went wrong. Please try again.");
 });

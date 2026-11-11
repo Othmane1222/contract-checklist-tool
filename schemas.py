@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 PLAIN_LANGUAGE_MAX = 400
 
@@ -33,3 +33,21 @@ class Finding(BaseModel):
 
 class CheckResult(BaseModel):
     results: list[Finding]
+
+SINGLE_LINE = r"^[^\r\n]*$"
+
+
+class SummaryItem(BaseModel):
+    label: str = Field(min_length=1, max_length=100, pattern=SINGLE_LINE)
+    status: Literal["quote_verified", "unverified", "possibly_present", "not_found"]
+    risk: Literal["Low", "Medium", "High"]
+
+
+class ContactRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100, pattern=SINGLE_LINE)
+    email: EmailStr
+    description: str = Field(min_length=1, max_length=1000)
+    contract_type: Literal["employment", "lease", "business"]
+    consent: Literal[True]
+    summary: list[SummaryItem] = Field(default_factory=list, max_length=30)
+    website: str = ""  # honeypot: humans never see or fill this field
