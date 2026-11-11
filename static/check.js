@@ -1,21 +1,17 @@
-const SUPPORTED_LANGUAGES = ["en", "es", "zh"];
-const STORAGE_KEY = "language";
+// Upload, results and contact form for /check. Uses t(), currentLanguage and locale() from i18n.js.
 const MAX_FILE_MB = 10;
 const MAX_FILE_SIZE = MAX_FILE_MB * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
 const RISK_ORDER = { High: 0, Medium: 1, Low: 2 };
 
-let translations = {};
-let englishTranslations = {};
-let currentLanguage = "en";
 let lastCheck = null;
 
-const languageSelect = document.getElementById("ui-language");
 const form = document.getElementById("upload-form");
 const button = form.querySelector("button");
 const fileInput = document.getElementById("file");
 const statusText = document.getElementById("status");
 const errorBox = document.getElementById("error");
+const errorText = document.getElementById("error-message");
 const results = document.getElementById("results");
 const summary = document.getElementById("summary");
 const tableBody = document.getElementById("results-body");
@@ -24,84 +20,20 @@ const explainToggle = document.getElementById("explain-toggle");
 const languageNote = document.getElementById("results-language-note");
 const recheckButton = document.getElementById("recheck");
 const reuploadNote = document.getElementById("reupload-note");
+const printButton = document.getElementById("print-button");
+const printMeta = document.getElementById("print-meta");
 const contactForm = document.getElementById("contact-form");
 const contactButton = contactForm.querySelector("button");
 const contactSection = document.getElementById("contact");
 const contactHighlight = document.getElementById("contact-highlight");
 const contactStatus = document.getElementById("contact-status");
 const contactError = document.getElementById("contact-error");
-
-// ---------- Translations ----------
-
-function has(object, key) {
-  return Object.prototype.hasOwnProperty.call(object, key);
+const requestedType = new URLSearchParams(window.location.search).get("type");
+if (requestedType && [...form.contract_type.options].some((option) => option.value === requestedType)) {
+  form.contract_type.value = requestedType;
 }
 
-function format(template, params = {}) {
-  return template.replace(/\{(\w+)\}/g, (match, name) => (has(params, name) ? String(params[name]) : match));
-}
-
-function hasTranslation(key) {
-  return has(translations, key) || has(englishTranslations, key);
-}
-
-function t(key, params = {}) {
-  const template = has(translations, key) ? translations[key] : has(englishTranslations, key) ? englishTranslations[key] : key;
-  return format(template, params);
-}
-
-function readSavedLanguage() {
-  try {
-    return localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function saveLanguage(language) {
-  try {
-    localStorage.setItem(STORAGE_KEY, language);
-  } catch {
-    // Storage unavailable (private window, blocked cookies): the choice just isn't remembered.
-  }
-}
-
-function detectLanguage() {
-  const saved = readSavedLanguage();
-  if (SUPPORTED_LANGUAGES.includes(saved)) return saved;
-  const browserLanguages = navigator.languages || [navigator.language || ""];
-  for (const tag of browserLanguages) {
-    const base = tag.toLowerCase().split("-")[0]; // zh-TW and zh-HK also become "zh" (Simplified Chinese)
-    if (SUPPORTED_LANGUAGES.includes(base)) return base;
-  }
-  return "en";
-}
-
-async function loadTranslations(language) {
-  const response = await fetch(`/static/i18n/${language}.json`);
-  if (!response.ok) throw new Error(`Missing translations: ${language}`);
-  return response.json();
-}
-
-function applyTranslations() {
-  document.title = t("page.title");
-  for (const element of document.querySelectorAll("[data-i18n]")) {
-    element.textContent = t(element.dataset.i18n);
-  }
-}
-
-async function setLanguage(language) {
-  if (!has(englishTranslations, "page.title")) {
-    englishTranslations = await loadTranslations("en");
-  }
-  translations = language === "en" ? englishTranslations : await loadTranslations(language);
-  currentLanguage = language;
-  saveLanguage(language);
-  languageSelect.value = language;
-  document.documentElement.lang = language === "zh" ? "zh-CN" : language;
-  applyTranslations();
-  if (lastCheck) renderResults(lastCheck);
-}
+// ---------- Helpers ----------
 
 function errorMessage(body) {
   if (body && typeof body.code === "string" && hasTranslation(`error.${body.code}`)) {
@@ -110,8 +42,6 @@ function errorMessage(body) {
   if (body && typeof body.message === "string") return body.message;
   return t("error.generic");
 }
-
-// ---------- Network helpers ----------
 
 async function post(url, options) {
   try {
@@ -129,16 +59,15 @@ async function readJson(response) {
   }
 }
 
-// ---------- Upload and results ----------
-
 function showError(message) {
-  errorBox.textContent = message;
+  errorText.textContent = message;
   errorBox.hidden = false;
+  errorBox.focus();
 }
 
 function clearPage() {
   statusText.textContent = "";
-  errorBox.textContent = "";
+  errorText.textContent = "";
   errorBox.hidden = true;
   results.hidden = true;
   tableBody.replaceChildren();
@@ -154,26 +83,29 @@ function checkFile(file) {
   return null;
 }
 
-function textCell(text) {
+// ---------- Results ----------
+
+function textCell(text, label) {
   const cell = document.createElement("td");
   cell.textContent = text;
+  if (label) cell.dataset.label = label;
   return cell;
 }
 
 function riskCell(risk) {
-  const cell = textCell(t(`risk.${risk}`));
-  cell.className = `risk risk-${risk.toLowerCase()}`;
+  const cell = textCell("", t("table.risk"));
+  const tag = document.createElement("span");
+  tag.className = `risk risk-${risk.toLowerCase()}`;
+  tag.textContent = t(`risk.${risk}`);
+  cell.append(tag);
   return cell;
 }
 
 function quotesCell(quotes) {
-  const cell = document.createElement("td");
-  if (quotes.length === 0) {
-    cell.textContent = "—";
-    return cell;
-  }
+  const cell = textCell(quotes.length === 0 ? "—" : "", t("table.quote"));
   for (const quote of quotes) {
     const figure = document.createElement("figure");
+    figure.className = "quote";
     const caption = document.createElement("figcaption");
     caption.textContent = t(`location.${quote.location.kind}`, { number: quote.location.number });
     const blockquote = document.createElement("blockquote");
@@ -185,8 +117,8 @@ function quotesCell(quotes) {
 }
 
 function plainCell(text) {
-  const cell = textCell(text || "—");
-  cell.className = "plain-column";
+  const cell = textCell(text || "—", t("table.plain"));
+  cell.classList.add("plain-column");
   return cell;
 }
 
@@ -214,11 +146,14 @@ function renderResults(data) {
   const sorted = [...findings].sort((a, b) => RISK_ORDER[a.risk] - RISK_ORDER[b.risk]);
   for (const finding of sorted) {
     const row = document.createElement("tr");
+    row.className = `row-${finding.risk.toLowerCase()}`;
+    const item = textCell(finding.label);
+    item.classList.add("item");
     row.append(
-      textCell(finding.label),
-      textCell(t(`found.${finding.status}`)),
+      item,
+      textCell(t(`found.${finding.status}`), t("table.found")),
       riskCell(finding.risk),
-      textCell(finding.explanation),
+      textCell(finding.explanation, t("table.explanation")),
       quotesCell(finding.quotes),
       plainCell(finding.plain_language),
     );
@@ -230,6 +165,9 @@ function renderResults(data) {
     (finding) => finding.status === "unverified" || finding.status === "possibly_present",
   ).length;
   summary.textContent = t("results.summary", { total: findings.length, high, check });
+  printMeta.textContent = t("print.meta", {
+    date: new Intl.DateTimeFormat(locale(), { dateStyle: "long" }).format(new Date()),
+  });
   contactSection.classList.toggle("highlight", high > 0);
   contactHighlight.hidden = high === 0;
   updateLanguageNote(data.language);
@@ -277,13 +215,12 @@ form.addEventListener("submit", async (event) => {
 });
 
 recheckButton.addEventListener("click", () => form.requestSubmit());
-
+printButton.addEventListener("click", () => window.print());
 explainToggle.addEventListener("change", () => {
   table.classList.toggle("show-plain", explainToggle.checked);
 });
-
-languageSelect.addEventListener("change", () => {
-  setLanguage(languageSelect.value).catch(() => showError(t("error.generic")));
+document.addEventListener("i18n:change", () => {
+  if (lastCheck) renderResults(lastCheck);
 });
 
 // ---------- Contact form ----------
@@ -333,19 +270,3 @@ contactForm.addEventListener("submit", async (event) => {
   }
   showContactError(errorMessage(await readJson(response)));
 });
-
-// ---------- Start ----------
-
-async function init() {
-  try {
-    await setLanguage(detectLanguage());
-  } catch {
-    try {
-      await setLanguage("en");
-    } catch {
-      // Keep the English text already in the HTML.
-    }
-  }
-}
-
-init();

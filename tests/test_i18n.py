@@ -65,3 +65,19 @@ def test_lawyer_review_keys_exist(language):
     assert "contact.consent" in review
     for key in review:
         assert key in translations, f"{language}: {key}"
+
+
+
+STATIC_DIR = I18N_DIR.parent
+USED_IN_HTML = re.compile(r'data-i18n="([^"]+)"')
+USED_IN_JS = re.compile(r'\bt\("([\w.]+)"')
+
+
+def test_every_key_used_by_the_pages_exists():
+    used = set()
+    for path in STATIC_DIR.glob("*.html"):
+        used |= set(USED_IN_HTML.findall(path.read_text(encoding="utf-8")))
+    for path in STATIC_DIR.glob("*.js"):
+        used |= set(USED_IN_JS.findall(path.read_text(encoding="utf-8")))
+    missing = sorted(used - public_keys(ENGLISH))
+    assert not missing, missing

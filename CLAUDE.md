@@ -65,3 +65,4 @@ Then open http://127.0.0.1:8000
 12. Phase 2: know-your-rights guides
 13. Phase 2: deadline extraction and .ics download
 Stretch: OCR for scanned PDFs, chunking for long contracts.
+Later: expand beyond a single checker into a fuller product (scope to be brainstormed)

@@ -54,6 +54,11 @@ def home():
     return FileResponse("static/index.html")
 
 
+@app.get("/check")
+def check_page():
+    return FileResponse("static/check.html")
+
+
 @app.post("/api/check")
 async def check(
     contract_type: str = Form(...),
