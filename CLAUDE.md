@@ -42,6 +42,7 @@ Phase 2
 - Contract text is sent to DeepSeek (stored in China, per its policy); consider requesting a training opt-out.
 - Decide whether to turn on REQUIRE_UPLOAD_CONSENT (and enforce it on the server).
 - Server swap memory: disable it in Milestone 10c so "not written to disk" stays accurate.
+- Write our own privacy policy explaining how DeepSeek processes the contract text: DeepSeek's policy does not cover end users of apps built on its API.
 
 ## Stack
 - Backend: Python 3.14, FastAPI, Uvicorn

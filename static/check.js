@@ -7,40 +7,50 @@ const RISK_ORDER = { High: 0, Medium: 1, Low: 2 };
 const REQUIRE_UPLOAD_CONSENT = false;
 
 let lastCheck = null;
+let quoteCount = 0;
 
+// Upload form
 const form = document.getElementById("upload-form");
 const button = form.querySelector("button");
 const fileInput = document.getElementById("file");
 const statusText = document.getElementById("status");
 const errorBox = document.getElementById("error");
 const errorText = document.getElementById("error-message");
+const uploadConsentField = document.getElementById("upload-consent-field");
+const uploadConsent = document.getElementById("upload-consent");
+
+// Results
 const results = document.getElementById("results");
 const summary = document.getElementById("summary");
 const tableBody = document.getElementById("results-body");
 const table = document.getElementById("results-table");
 const explainToggle = document.getElementById("explain-toggle");
 const languageNote = document.getElementById("results-language-note");
-const recheckButton = document.getElementById("recheck");
 const languageNoteText = document.getElementById("results-language-text");
+const recheckButton = document.getElementById("recheck");
 const fileGoneNote = document.getElementById("file-gone-note");
 const verdict = document.getElementById("verdict");
 const verdictText = document.getElementById("verdict-text");
 const verdictLink = document.getElementById("verdict-link");
-const uploadConsentField = document.getElementById("upload-consent-field");
-const uploadConsent = document.getElementById("upload-consent");
+const printButton = document.getElementById("print-button");
+const printMeta = document.getElementById("print-meta");
+
+// Contact
+const contactSection = document.getElementById("contact");
+const contactHighlight = document.getElementById("contact-highlight");
+const contactIntro = document.getElementById("contact-intro");
+const contactOpen = document.getElementById("contact-open");
+const contactForm = document.getElementById("contact-form");
+const contactButton = contactForm.querySelector("button");
+const contactStatus = document.getElementById("contact-status");
+const contactError = document.getElementById("contact-error");
 
 if (REQUIRE_UPLOAD_CONSENT) {
   uploadConsentField.hidden = false;
   uploadConsent.required = true;
 }
-const printButton = document.getElementById("print-button");
-const printMeta = document.getElementById("print-meta");
-const contactForm = document.getElementById("contact-form");
-const contactButton = contactForm.querySelector("button");
-const contactSection = document.getElementById("contact");
-const contactHighlight = document.getElementById("contact-highlight");
-const contactStatus = document.getElementById("contact-status");
-const contactError = document.getElementById("contact-error");
+
+// Pre-select the contract type when arriving from a homepage card, e.g. /check?type=lease
 const requestedType = new URLSearchParams(window.location.search).get("type");
 if (requestedType && [...form.contract_type.options].some((option) => option.value === requestedType)) {
   form.contract_type.value = requestedType;
@@ -85,6 +95,9 @@ function clearPage() {
   results.hidden = true;
   tableBody.replaceChildren();
   lastCheck = null;
+  contactForm.hidden = true;
+  contactOpen.hidden = false;
+  contactOpen.setAttribute("aria-expanded", "false");
 }
 
 function checkFile(file) {
@@ -106,7 +119,8 @@ function textCell(text, label) {
 }
 
 function riskCell(risk) {
-  const cell = textCell("", t("table.risk"));
+  const cell = textCell("");
+  cell.classList.add("risk-cell");
   const tag = document.createElement("span");
   tag.className = `risk risk-${risk.toLowerCase()}`;
   tag.textContent = t(`risk.${risk}`);
@@ -115,23 +129,43 @@ function riskCell(risk) {
 }
 
 function quotesCell(quotes) {
-  const cell = textCell(quotes.length === 0 ? "—" : "", t("table.quote"));
+  const cell = textCell(quotes.length === 0 ? "—" : "");
+  if (quotes.length === 0) cell.classList.add("is-empty");
   for (const quote of quotes) {
+    quoteCount += 1;
     const figure = document.createElement("figure");
     figure.className = "quote";
+
     const caption = document.createElement("figcaption");
     caption.textContent = t(`location.${quote.location.kind}`, { number: quote.location.number });
+
     const blockquote = document.createElement("blockquote");
+    blockquote.id = `quote-${quoteCount}`;
     blockquote.textContent = quote.text;
-    figure.append(caption, blockquote);
+
+    // "Show full clause" button, visible on phones only (see style.css)
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "quote-toggle no-print";
+    toggle.setAttribute("aria-controls", blockquote.id);
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.textContent = t("results.show_clause");
+    toggle.addEventListener("click", () => {
+      const open = figure.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.textContent = t(open ? "results.hide_clause" : "results.show_clause");
+    });
+
+    figure.append(caption, blockquote, toggle);
     cell.append(figure);
   }
   return cell;
 }
 
 function plainCell(text) {
-  const cell = textCell(text || "—", t("table.plain"));
+  const cell = textCell(text || "—");
   cell.classList.add("plain-column");
+  if (!text) cell.classList.add("is-empty");
   return cell;
 }
 
@@ -170,6 +204,7 @@ function renderVerdict(findings) {
   verdictText.textContent = text;
   verdictLink.hidden = level !== "high";
 }
+
 function renderResults(data) {
   tableBody.replaceChildren();
   const findings = data.results;
@@ -183,7 +218,7 @@ function renderResults(data) {
       item,
       textCell(t(`found.${finding.status}`), t("table.found")),
       riskCell(finding.risk),
-      textCell(finding.explanation, t("table.explanation")),
+      textCell(finding.explanation),
       quotesCell(finding.quotes),
       plainCell(finding.plain_language),
     );
@@ -198,8 +233,11 @@ function renderResults(data) {
   printMeta.textContent = t("print.meta", {
     date: new Intl.DateTimeFormat(locale(), { dateStyle: "long" }).format(new Date()),
   });
+
   contactSection.classList.toggle("highlight", high > 0);
   contactHighlight.hidden = high === 0;
+  contactIntro.hidden = high > 0;
+
   renderVerdict(findings);
   updateLanguageNote(data.language);
   results.hidden = false;
@@ -246,23 +284,38 @@ form.addEventListener("submit", async (event) => {
 });
 
 recheckButton.addEventListener("click", () => form.requestSubmit());
+
+// Choosing a different file clears the old results immediately.
 fileInput.addEventListener("change", () => {
   if (lastCheck) clearPage();
 });
+
 printButton.addEventListener("click", () => window.print());
+
 explainToggle.addEventListener("change", () => {
   table.classList.toggle("show-plain", explainToggle.checked);
 });
+
 document.addEventListener("i18n:change", () => {
   if (lastCheck) renderResults(lastCheck);
 });
 
 // ---------- Contact form ----------
 
+function openContactForm() {
+  contactForm.hidden = false;
+  contactOpen.hidden = true;
+  contactOpen.setAttribute("aria-expanded", "true");
+  document.getElementById("contact-name").focus();
+}
+
 function showContactError(message) {
   contactError.textContent = message;
   contactError.hidden = false;
 }
+
+contactOpen.addEventListener("click", openContactForm);
+verdictLink.addEventListener("click", openContactForm);
 
 contactForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -303,4 +356,4 @@ contactForm.addEventListener("submit", async (event) => {
     return;
   }
   showContactError(errorMessage(await readJson(response)));
-});
+});zzz

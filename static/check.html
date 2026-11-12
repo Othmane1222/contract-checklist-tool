@@ -93,13 +93,13 @@
           <p id="file-gone-note" class="notice" hidden></p>
         </div>
 
-        <label class="toggle no-print">
-          <input id="explain-toggle" type="checkbox">
-          <span data-i18n="results.explain">Explain it to me</span>
+          <label class="switch no-print">
+          <input id="explain-toggle" type="checkbox" role="switch" checked>
+          <span data-i18n="results.explain">Show plain-language summaries</span>
         </label>
 
         <div class="table-wrapper">
-          <table id="results-table" class="findings">
+        <table id="results-table" class="findings show-plain">
             <thead>
               <tr>
                 <th scope="col" data-i18n="table.item">Checklist item</th>
@@ -114,10 +114,12 @@
           </table>
         </div>
 
-        <section id="contact" class="contact panel">
+                <section id="contact" class="contact panel">
           <h3 data-i18n="contact.title">Get help from a lawyer</h3>
-          <p id="contact-highlight" class="contact-highlight" data-i18n="contact.highlight" hidden>This contract has high-risk items. A lawyer can review them with you.</p>
-          <form id="contact-form">
+          <p id="contact-highlight" data-i18n="contact.highlight" hidden>We recommend having a lawyer review this contract before you sign it.</p>
+          <p id="contact-intro" data-i18n="contact.intro">A lawyer can review this contract with you.</p>
+          <button type="button" id="contact-open" class="button" aria-expanded="false" aria-controls="contact-form" data-i18n="contact.open">Write to a lawyer</button>
+          <form id="contact-form" hidden>
             <div class="field">
               <label for="contact-name" data-i18n="contact.name">Name</label>
               <input id="contact-name" maxlength="100" required>
