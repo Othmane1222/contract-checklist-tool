@@ -10,3 +10,4 @@ __pycache__/
 .env
 .playwright-mcp/
 screenshots/ 
+eval/reports/*/runs.json

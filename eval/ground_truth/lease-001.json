@@ -1,0 +1,8 @@
+{
+  "contract_id": "lease-001",
+  "items": {
+    "rent_deposit": {"found": true, "risk": "High", "articles": ["第三条"]},
+    "early_termination": {"found": true, "risk": "High", "articles": ["第六条"]},
+    "repairs": {"found": true, "risk": "High", "articles": ["第四条"]}
+  }
+}

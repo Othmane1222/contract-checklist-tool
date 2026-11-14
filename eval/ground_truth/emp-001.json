@@ -1,0 +1,8 @@
+{
+  "contract_id": "emp-001",
+  "items": {
+    "contract_term": {"found": true, "risk": "Low", "articles": ["第一条"]},
+    "probation": {"found": true, "risk": "High", "articles": ["第一条", "第三条"]},
+    "termination": {"found": false}
+  }
+}

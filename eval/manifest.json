@@ -1,0 +1,6 @@
+{
+  "contracts": [
+    {"id": "emp-001", "file": "contracts/emp-001.docx", "contract_type": "employment", "split": "dev", "source": "synthetic"},
+    {"id": "lease-001", "file": "contracts/lease-001.docx", "contract_type": "lease", "split": "dev", "source": "synthetic"}
+  ]
+}

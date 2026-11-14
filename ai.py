@@ -14,6 +14,8 @@ MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-flash")
 MAX_ATTEMPTS = 3
 TIMEOUT_SECONDS = 90
 MAX_OUTPUT_TOKENS = 8000
+TEMPERATURE = 0
+THINKING = "disabled"
 
 client = OpenAI(
     api_key=os.environ["DEEPSEEK_API_KEY"],
@@ -95,8 +97,8 @@ def check_contract(checklist: dict, blocks: list[dict], language: str = "English
             messages=messages,
             response_format={"type": "json_object"},
             max_tokens=MAX_OUTPUT_TOKENS,
-            extra_body={"thinking": {"type": "disabled"}},
-            temperature=0,
+            extra_body={"thinking": {"type": THINKING}},
+            temperature=TEMPERATURE,
         )
         choice = response.choices[0]
         if choice.finish_reason != "stop":
